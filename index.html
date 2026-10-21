@@ -1316,8 +1316,7 @@ let sbCurrentObjectUrl = Array(8).fill(null);
 let sbImageObjectUrls = Array(8).fill(null);
 let sbBackgroundObjectUrl = null;
 
-const SB_DB = "OviSoundboardDB";
-const SB_STORE = "settings";
+const SB_DB = "OviSoundboardDB"; const SB_STORE = "settings"; function sbCloudKey(key) { return "user_" + supabaseUser.id + "_" + key; }
 
 function sbKey(key) {
     const kategoriaPrefix = ["torna", "kedvencek", "enek"].includes(aktualisKategoria) ? aktualisKategoria + "_" : "";
@@ -1370,7 +1369,7 @@ async function sbCloudSave(key, value) {
     let fileType = null;
 
     if (isFile) {
-        filePath = "asset-" + Array.from(new TextEncoder().encode(key), byte => byte.toString(16).padStart(2, "0")).join("");
+        filePath = supabaseUser.id + "/asset-" + Array.from(new TextEncoder().encode(key), byte => byte.toString(16).padStart(2, "0")).join("");
         fileName = value.name || key;
         fileType = value.type || "application/octet-stream";
 
@@ -1397,15 +1396,14 @@ async function sbCloudSave(key, value) {
     if (error) throw error;
 }
 
-async function sbCloudLoad(key) {
-    const { data: row, error } = await supabaseClient
+async function sbCloudLoad(key, legacyKey) {
+    const { data: scopedRow, error } = await supabaseClient
         .from("ovi_settings")
         .select("json_value,file_path,file_name,file_type")
         .eq("setting_key", key)
         .maybeSingle();
 
-    if (error) throw error;
-    if (!row) return undefined;
+    if (error) throw error; let row = scopedRow; if (!row && legacyKey) { const { data: legacyRow, error: legacyError } = await supabaseClient.from("ovi_settings").select("json_value,file_path,file_name,file_type").eq("setting_key", legacyKey).eq("updated_by", supabaseUser.id).maybeSingle(); if (legacyError) throw legacyError; row = legacyRow; } if (!row) return undefined;
     if (!row.file_path) return row.json_value;
 
     const { data: fileBlob, error: downloadError } = await supabaseClient
@@ -1423,7 +1421,7 @@ async function sbCloudLoad(key) {
 }
 
 function sbSave(key, value) {
-    if (supabaseClient && supabaseUser) return sbCloudSave(key, value);
+    if (supabaseClient && supabaseUser) return sbCloudSave(sbCloudKey(key), value);
     if (!sbDb) { sbMemoryStore.set(key, value); return Promise.resolve(); }
     return new Promise((resolve, reject) => {
         let tx;
@@ -1440,7 +1438,7 @@ function sbSave(key, value) {
 }
 
 function sbLoad(key) {
-    if (supabaseClient && supabaseUser) return sbCloudLoad(key);
+    if (supabaseClient && supabaseUser) return sbCloudLoad(sbCloudKey(key), key);
     if (!sbDb) return Promise.resolve(sbMemoryStore.get(key));
     return new Promise(resolve => {
         let req;
