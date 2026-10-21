@@ -1569,14 +1569,13 @@ function sbResume() {
 
         const fullscreenTarget = sbView;
         if (!fullscreenTarget.requestFullscreen) {
-            sbFallbackFullscreen = true; sbView.classList.add("sb-immersive-fallback"); sbClosePanel(); sbFullscreenLabelFrissitese(); return;
-            return;
+            alert("Ez a böngésző nem támogatja a teljes képernyős módot. Próbáld meg a böngésző menüjéből vagy telepített alkalmazásként megnyitva."); return;
         }
 
         await fullscreenTarget.requestFullscreen();
     } catch (error) {
         console.error("A teljes képernyős mód nem indítható el:", error);
-        sbFallbackFullscreen = true; sbView.classList.add("sb-immersive-fallback"); sbClosePanel(); sbFullscreenLabelFrissitese();
+        alert("A böngésző nem engedélyezte a teljes képernyős módot. Próbáld újra a gomb megérintésével.");
     }
 }
 
