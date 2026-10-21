@@ -909,9 +909,7 @@ body::before {
     background: transparent;
 }
 
-#soundboardView:fullscreen { background-color: #e9efdf; } #soundboardView.sb-immersive-fallback #sbMenuBtn, #soundboardView.sb-immersive-fallback #sbPlaybackControls, #soundboardView.sb-immersive-fallback .sb-btn-label { display: none !important; } #sbFallbackExitBtn { display: none; position: fixed; top: 6px; right: 8px; z-index: 1040; width: 36px; height: 36px; padding: 0; border: 1px solid rgba(0,0,0,.35); border-radius: 50%; background: rgba(255,255,255,.72); color: #222; font-size: 25px; line-height: 1; } #soundboardView.sb-immersive-fallback #sbFallbackExitBtn { display: block; } #soundboardView.sb-immersive-fallback #soundboardApp { min-height: 100vh; min-height: 100dvh; padding-top: 12px; } #soundboardView.sb-immersive-fallback #sbButtons { min-height: calc(100vh - 24px); min-height: calc(100dvh - 24px); }
-
-#soundboardView.torna-mode:fullscreen {
+#soundboardView:fullscreen { background-color: #e9efdf; } #soundboardView.torna-mode:fullscreen {
     background: #e9efdf var(--season-background) center / cover no-repeat;
 }
 
