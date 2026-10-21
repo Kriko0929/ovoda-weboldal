@@ -355,9 +355,7 @@
                 title="Beállítások"
             >
                 <span></span><span></span><span></span>
-            </button>
-
-            <div id="sbButtons">
+            </button><button type="button" id="sbFallbackExitBtn" aria-label="Kilépés a gyerek módból" title="Kilépés">×</button><div id="sbButtons">
                 <div class="sb-btn-wrap"><span class="sb-btn-label">Gomb 1</span><button type="button" class="sb-btn-sound" aria-label="Gomb 1 lejátszása"></button></div>
                 <div class="sb-btn-wrap"><span class="sb-btn-label">Gomb 2</span><button type="button" class="sb-btn-sound" aria-label="Gomb 2 lejátszása"></button></div>
                 <div class="sb-btn-wrap"><span class="sb-btn-label">Gomb 3</span><button type="button" class="sb-btn-sound" aria-label="Gomb 3 lejátszása"></button></div>
@@ -1562,7 +1560,7 @@ function sbResume() {
 
 /* BEÁLLÍTÁSI MENÜ */
 
-async function sbToggleFullscreen() {
+let sbFallbackFullscreen = false; async function sbToggleFullscreen() {
     try {
         if (document.fullscreenElement) {
             await document.exitFullscreen();
@@ -1571,19 +1569,19 @@ async function sbToggleFullscreen() {
 
         const fullscreenTarget = sbView;
         if (!fullscreenTarget.requestFullscreen) {
-            alert("Ez a böngésző nem támogatja a teljes képernyős módot. Próbáld meg a böngésző menüjéből vagy telepített alkalmazásként megnyitva.");
+            sbFallbackFullscreen = true; sbView.classList.add("sb-immersive-fallback"); sbClosePanel(); sbFullscreenLabelFrissitese(); return;
             return;
         }
 
         await fullscreenTarget.requestFullscreen();
     } catch (error) {
         console.error("A teljes képernyős mód nem indítható el:", error);
-        alert("A böngésző nem engedélyezte a teljes képernyős módot. Próbáld újra a gomb megérintésével.");
+        sbFallbackFullscreen = true; sbView.classList.add("sb-immersive-fallback"); sbClosePanel(); sbFullscreenLabelFrissitese();
     }
 }
 
 function sbFullscreenLabelFrissitese() {
-    const fullscreen = Boolean(document.fullscreenElement);
+    const fullscreen = Boolean(document.fullscreenElement) || sbFallbackFullscreen;
     sbFocusModeBtn.setAttribute("aria-pressed", String(fullscreen));
     sbFocusModeBtn.textContent = fullscreen
         ? "⛶ Kilépés a teljes képernyőből"
@@ -1948,7 +1946,7 @@ async function sbOpen() {
 
 function sbBack() {
     sbStopAndReset();
-    if (document.fullscreenElement) document.exitFullscreen();
+    if (document.fullscreenElement) document.exitFullscreen(); sbFallbackFullscreen = false; sbView.classList.remove("sb-immersive-fallback");
     document.body.classList.remove("sb-active");
     sbClosePanel();
 
@@ -2000,7 +1998,7 @@ document.addEventListener("visibilitychange", () => {
 
 sbLaunch.addEventListener("click", sbOpen);
 sbMenuBtn.addEventListener("click", sbTogglePanel);
-sbFocusModeBtn.addEventListener("click", sbToggleFullscreen);
+sbFocusModeBtn.addEventListener("click", sbToggleFullscreen); document.getElementById("sbFallbackExitBtn").addEventListener("click", () => { if (sbFallbackFullscreen) sbToggleFullscreen(); });
 document.addEventListener("fullscreenchange", sbFullscreenLabelFrissitese);
 sbBackBtn.addEventListener("click", sbBack);
 sbPlayBtn.addEventListener("click", sbResume);
