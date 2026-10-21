@@ -2152,7 +2152,7 @@ document.getElementById("signupForm").addEventListener("submit", async event => 
     try {
         const email = document.getElementById("signupEmail").value.trim();
         const password = document.getElementById("signupPassword").value;
-        const { data, error } = await supabaseClient.auth.signUp({ email, password });
+        const emailRedirectTo = new URL("./", window.location.href).toString(); const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { emailRedirectTo } });
         if (error) throw error;
         message.textContent = data.session
             ? "Sikeres regisztráció. Be vagy jelentkezve."
